@@ -4,6 +4,12 @@ import numpy as np
 CIFAR10_DIR = 'data/cifar-10-batches-py'
 CIFAR100_DIR = 'data/cifar-100-python'
 
+CIFAR10_CLASSES = ['automobile', 'bird', 'cat', 'deer', 'dog', 'horse', 'truck']
+CIFAR100_FINE_CLASSES = ['cattle', 'fox', 'baby', 'boy', 'girl', 'man', 'woman',
+                         'rabbit', 'squirrel', 'bicycle', 'bus', 'motorcycle',
+                         'pickup_truck', 'train', 'lawn_mower', 'tractor']
+CIFAR100_COARSE_CLASSES = ['trees']
+CLASS_NAMES = CIFAR10_CLASSES + CIFAR100_FINE_CLASSES + CIFAR100_COARSE_CLASSES
 
 def unpickle(file):
     with open(file, 'rb') as f:
@@ -51,3 +57,26 @@ def load_cifar100(split):
 def load_cifar100_label_names():
     meta = unpickle(CIFAR100_DIR + '/meta')
     return decode_names(meta[b'fine_label_names']), decode_names(meta[b'coarse_label_names'])
+
+def filter_cifar10(X, y, label_names):
+    keep, new_y = [], []
+    for i in range(len(y)):
+        name = label_names[y[i]]
+        if name in CIFAR10_CLASSES:
+            keep.append(i)
+            new_y.append(CLASS_NAMES.index(name))
+    return X[keep], np.array(new_y)
+
+
+def filter_cifar100(X, y_fine, y_coarse, fine_names, coarse_names):
+    keep, new_y = [], []
+    for i in range(len(y_fine)):
+        fine_name = fine_names[y_fine[i]]
+        coarse_name = coarse_names[y_coarse[i]]
+        if fine_name in CIFAR100_FINE_CLASSES:
+            keep.append(i)
+            new_y.append(CLASS_NAMES.index(fine_name))
+        elif coarse_name in CIFAR100_COARSE_CLASSES:
+            keep.append(i)
+            new_y.append(CLASS_NAMES.index(coarse_name))
+    return X[keep], np.array(new_y)
