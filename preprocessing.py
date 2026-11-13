@@ -32,7 +32,6 @@ def examine_random_training_image_after_preprocessing(X_train):
     plt.imshow(X_train[np.random.randint(0, len(X_train) - 1)])
     plt.axis("off")
     plt.show()
-    print(X_train.shape)
 
 
 def reshape_for_cnn(X_train, X_val, X_test):
