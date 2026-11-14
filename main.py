@@ -23,4 +23,6 @@ print(X_train.shape, X_val.shape, X_test.shape)
 
 model = leNet_model(len(CLASS_NAMES))
 print(model.summary())
-evaluate_model(model, X_train, y_train, X_val, y_val, X_test, y_test)
+datagen = create_data_generator()
+explore_datagen(datagen, X_train, y_train)
+evaluate_model(model, X_train, y_train, X_val, y_val, X_test, y_test, datagen)
