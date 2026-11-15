@@ -31,7 +31,6 @@ def modified_model(num_classes):
     model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Flatten())
     model.add(Dense(500, activation='relu'))
-    model.add(Dropout(0.5))
     model.add(Dense(num_classes, activation='softmax'))
     model.compile(Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
     return model
@@ -53,7 +52,7 @@ def explore_datagen(datagen, X_train, y_train):
 
 def evaluate_model(model, X_train, y_train, X_val, y_val, X_test, y_test, datagen):
     datagen.fit(X_train)
-    history = model.fit(datagen.flow(X_train, y_train, batch_size=32), epochs=15, validation_data=(X_val, y_val), verbose=1, shuffle=1)
+    history = model.fit(datagen.flow(X_train, y_train, batch_size=50), epochs=20, validation_data=(X_val, y_val), verbose=1, shuffle=1)
     plt.plot(history.history['accuracy'])
     plt.plot(history.history['val_accuracy'])
     plt.legend(['training', 'validation'])
