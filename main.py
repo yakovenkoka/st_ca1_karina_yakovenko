@@ -21,7 +21,7 @@ X_train, X_val, X_test = reshape_for_cnn(X_train, X_val, X_test)
 y_train, y_val, y_test = one_hot_encode(len(CLASS_NAMES), y_train, y_val, y_test)
 print(X_train.shape, X_val.shape, X_test.shape)
 
-model = leNet_model(len(CLASS_NAMES))
+model = modified_model(len(CLASS_NAMES))
 print(model.summary())
 datagen = create_data_generator()
 explore_datagen(datagen, X_train, y_train)
