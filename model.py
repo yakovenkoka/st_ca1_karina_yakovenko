@@ -30,6 +30,7 @@ def modified_model(num_classes):
     model.add(Conv2D(30, (3,3), activation='relu'))
     model.add(MaxPooling2D(pool_size=(2,2)))
     model.add(Flatten())
+    model.add(Dropout(0.5))
     model.add(Dense(500, activation='relu'))
     model.add(Dense(num_classes, activation='softmax'))
     model.compile(Adam(learning_rate=0.001), loss='categorical_crossentropy', metrics=['accuracy'])
