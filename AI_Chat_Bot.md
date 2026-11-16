@@ -1,4 +1,4 @@
-1.  prompt: what does b stand for in python as in b'data'
+1.  prompt: what does b stand for in python as in b'data' Date
     response: 
     `The b stands for bytes. Putting b in front of a string literal tells Python to make a bytes object instead of a regular str.`
 
@@ -25,34 +25,48 @@
 
     `Other string prefixes you might see are r'' (raw string, where backslashes aren’t escapes), f'' (formatted string), and rb'' `
 
-2.  prompt: 
-    I have a row of images where each image is a row of 3072 values, each  1024-value represent 1 color (Red -> Green -> Blue), so i can reshape it like this (channel first) 
+    date: 13/11/2026
 
-    `mages = raw_data.reshape(-1, 3, 32, 32)`
-    i need to make channel last, how can i do it
-
+2.  prompt: how to merge 2 np arrays
     response:
-    Use transpose to reorder the axes after the reshape:
+    `It depends on whether you want to join them along an existing axis or stack them along a new one.`
+
+    `Join along an existing axis: np.concatenate`
 
     python
-    `images = raw_data.reshape(-1, 3, 32, 32).transpose(0, 2, 3, 1)`
-    # shape: (N, 32, 32, 3)
+    import numpy as np
 
-    `The arguments to transpose say which old axis goes in each new position. Your current axes are (N, C, H, W), numbered (0, 1, 2, 3), and you want (N, H, W, C), so the new order is (0, 2, 3, 1).`
+    a = np.array([1, 2, 3])
+    b = np.array([4, 5, 6])
+    np.concatenate([a, b])            # [1 2 3 4 5 6]
 
-    `np.moveaxis does the same thing and can be easier to read:`
+    # 2D: rows (axis=0) or columns (axis=1)
+    x = np.zeros((2, 3))
+    y = np.ones((4, 3))
+    np.concatenate([x, y], axis=0)    # shape (6, 3)
+
+    Shortcuts:
 
     python
-    `images = np.moveaxis(raw_data.reshape(-1, 3, 32, 32), 1, -1)`
+    np.vstack([x, y])     # stack vertically (add rows): same as axis=0 for 2D
+    np.hstack([a, b])     # stack horizontally: joins 1D arrays end to end, or adds columns for 2D
 
-    `Don’t skip the first reshape. It’s tempting to write raw_data.reshape(-1, 32, 32, 3). That gives the right shape but scrambles the image. Your data is stored as all the red values, then all the green, then all the blue. Reshaping straight to channel-last would instead treat every three consecutive values as one pixel’s (R, G, B). You have to reshape to channel-first first, because that matches the order of the data in memory, and then transpose.`
-
-    `One detail: transpose returns a view of the original array without copying it, so the result isn’t contiguous in memory. Most code doesn’t care. If a library complains (some OpenCV or PIL functions do), make a contiguous copy:`
+    `Create a new axis: np.stack`
 
     python
-    `images = np.ascontiguousarray(images)`
+    np.stack([a, b])          # shape (2, 3): each array becomes a row
+    np.stack([a, b], axis=1)  # shape (3, 2): each array becomes a column
 
-    `This layout matches CIFAR-10. If that’s your dataset, the result is ready for plt.imshow(images[0]). If the values are uint8 (0–255), imshow displays them correctly as they are.`
+    `Shape rules:`
+
+    `concatenate, vstack and hstack need the shapes to match on every axis except the one you’re joining along.`
+    `stack needs the arrays to have exactly the same shape.`
+
+    `If you get a “dimensions must match” error, print a.shape and b.shape to see which axis differs.`
+
+    `For example, to merge image batches shaped (N, 32, 32, 3) with their labels, use np.concatenate([x1, x2], axis=0) for the images and np.concatenate([y1, y2]) for the labels.`
+
+    date: 13/11/2026
 
 3. prompt:
     cfar 10 and cifar 100 have no validation set, how can i split it?
@@ -111,44 +125,38 @@
 
     Keras doesn’t have the augmentation problem as long as you apply augmentation layers only in the training pipeline. Avoid validation_split=0.1 in model.fit: it just takes the last 10% of the data without shuffling or stratifying.
 
-4.  prompt: how to merge 2 np arrays
+    date: 13/11/2026
+
+4.  prompt: 
+    I have a row of images where each image is a row of 3072 values, each  1024-value represent 1 color (Red -> Green -> Blue), so i can reshape it like this (channel first) 
+
+    `mages = raw_data.reshape(-1, 3, 32, 32)`
+    i need to make channel last, how can i do it
+
     response:
-    `It depends on whether you want to join them along an existing axis or stack them along a new one.`
-
-    `Join along an existing axis: np.concatenate`
+    Use transpose to reorder the axes after the reshape:
 
     python
-    import numpy as np
+    `images = raw_data.reshape(-1, 3, 32, 32).transpose(0, 2, 3, 1)`
+    # shape: (N, 32, 32, 3)
 
-    a = np.array([1, 2, 3])
-    b = np.array([4, 5, 6])
-    np.concatenate([a, b])            # [1 2 3 4 5 6]
+    `The arguments to transpose say which old axis goes in each new position. Your current axes are (N, C, H, W), numbered (0, 1, 2, 3), and you want (N, H, W, C), so the new order is (0, 2, 3, 1).`
 
-    # 2D: rows (axis=0) or columns (axis=1)
-    x = np.zeros((2, 3))
-    y = np.ones((4, 3))
-    np.concatenate([x, y], axis=0)    # shape (6, 3)
-
-    Shortcuts:
+    `np.moveaxis does the same thing and can be easier to read:`
 
     python
-    np.vstack([x, y])     # stack vertically (add rows): same as axis=0 for 2D
-    np.hstack([a, b])     # stack horizontally: joins 1D arrays end to end, or adds columns for 2D
+    `images = np.moveaxis(raw_data.reshape(-1, 3, 32, 32), 1, -1)`
 
-    `Create a new axis: np.stack`
+    `Don’t skip the first reshape. It’s tempting to write raw_data.reshape(-1, 32, 32, 3). That gives the right shape but scrambles the image. Your data is stored as all the red values, then all the green, then all the blue. Reshaping straight to channel-last would instead treat every three consecutive values as one pixel’s (R, G, B). You have to reshape to channel-first first, because that matches the order of the data in memory, and then transpose.`
+
+    `One detail: transpose returns a view of the original array without copying it, so the result isn’t contiguous in memory. Most code doesn’t care. If a library complains (some OpenCV or PIL functions do), make a contiguous copy:`
 
     python
-    np.stack([a, b])          # shape (2, 3): each array becomes a row
-    np.stack([a, b], axis=1)  # shape (3, 2): each array becomes a column
+    `images = np.ascontiguousarray(images)`
 
-    `Shape rules:`
+    `This layout matches CIFAR-10. If that’s your dataset, the result is ready for plt.imshow(images[0]). If the values are uint8 (0–255), imshow displays them correctly as they are.`
 
-    `concatenate, vstack and hstack need the shapes to match on every axis except the one you’re joining along.`
-    `stack needs the arrays to have exactly the same shape.`
-
-    `If you get a “dimensions must match” error, print a.shape and b.shape to see which axis differs.`
-
-    `For example, to merge image batches shaped (N, 32, 32, 3) with their labels, use np.concatenate([x1, x2], axis=0) for the images and np.concatenate([y1, y2]) for the labels.`
+    date: 13/11/2026
 
 5.  prompt: 
         - [attachments] : model.py, main.py, german_ts_cnn.py
@@ -174,6 +182,8 @@
 
     `Smaller gains, all in the file: label smoothing, light L2 weight decay, and averaging each prediction with its mirror image at test time. Separately, datagen.fit() only matters for featurewise normalisation, and shuffle=1 is ignored when you train from a generator.`
 
+    date: 15/11/2026
+
 6.  prompt: does batch size affect learning outcome
 
     response: 
@@ -187,3 +197,12 @@
     `Comparing per epoch can mislead. Over a fixed 20 epochs, batch size 128 makes 2.5× fewer weight updates than batch size 50, so it can look worse just because it got fewer updates. Compare runs on best validation accuracy at convergence, which the early stopping in the new file handles.`
 
     `BatchNorm adds one more factor. BatchNorm normalises using each batch’s own mean and variance. With very small batches (under ~16), those statistics get noisy and accuracy suffers. From 32 up it’s fine.`
+
+    date: 15/11/2026
+
+6.  prompt: How to create a zip from the git repo 
+
+    response: 
+    `git archive --format=zip --prefix=st_ca1_karina_yakovenko/ -o st_ca1_karina_yakovenko.zip HEAD`
+
+    date: 15/11/2026
